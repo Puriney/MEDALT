@@ -4,12 +4,12 @@
 ##The first column is chromosome, the second column is the start position of bin, and the following columns are sequenced cells.
 DNAinput <- function(inputfile){
   data=read.csv(inputfile,sep="\t")
-  region=table(data[,1])
-  regionseq=c()
-  for (i in 1:length(region)){
-    regionseq=c(regionseq,c(1:region[i]))
-  }
-  row.names(data)=paste("chr",data[,1],"_",regionseq,sep="")
+  region_id <- split(data[, c(1,2)], data[,1])
+  region_id <- lapply(region_id, function(region_id_chr) {
+    paste0('chr', region_id_chr[,1], '_', 1:nrow(region_id_chr))
+  })
+  region_id <- as.character(unlist(region_id))
+  rownames(data) <- region_id
   CNV=data[,3:dim(data)[2]]
   CNV=t(CNV)
   write.table(CNV, paste(inputfile,".CNV.txt",sep=""), sep = "\t",col.names = TRUE, row.names = TRUE, quote = FALSE)
